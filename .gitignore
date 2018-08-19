@@ -1,0 +1,8 @@
+*.pyc
+__pychache__
+
+data/
+models/
+hdf5_data/
+test_images/
+etlcdb/

@@ -26,15 +26,12 @@ class KutenDictionary(dict):
 		return dict.__len__(self) / 2
 
 
-
 def reader(counter):
 	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
 	JIS_code = data[2:4]
 	reading = data[4:8]
-
 	JIS_code_ku = JIS_code[0] - 32
 	JIS_code_ten = JIS_code[1] - 32
-	
 	return (JIS_code_ku, JIS_code_ten)
 
 
@@ -43,19 +40,18 @@ with open(DATA_FILE, 'rb') as file_handle:
 	byte_buffer = file_handle.read( (TOTAL_RECORDS+1) * SAMPLE_WIDTH )
 
 
-print("Creating KuTen-dictionary...")
-dictionary = KutenDictionary()
 
-for counter in range(0,TOTAL_RECORDS,160):
-	dictionary[counter/160] = reader(counter+1)
+if __name__ == '__main__':
+	print("Creating KuTen-dictionary...")
+	dictionary = KutenDictionary()
 
+	for counter in range(0,TOTAL_RECORDS,160):
+		dictionary[counter/160] = reader(counter+1)
 
+	with open('data/dictionary.pkl', 'wb') as f:
+	    pickle.dump(dictionary, f, pickle.HIGHEST_PROTOCOL)
 
-with open('data/dictionary.pkl', 'wb') as f:
-    pickle.dump(dictionary, f, pickle.HIGHEST_PROTOCOL)
-
-
-#print(dictionary[7])
+	#print(dictionary[7])
 
 
 

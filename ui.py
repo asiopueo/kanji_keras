@@ -1,22 +1,15 @@
 #!/usr/bin/python
 
-
-
-import sip
-sip.setapi('QVariant', 2)
-
-#import cStringIO
+import numpy as np
 from PIL import Image
-
 from PyQt4 import QtCore, QtGui
 
-# Import classifier():
-#from classifier import classifier
-
+from create_dictionary import KutenDictionary
+from classifier import Classifier
 
 
 ###############################
-#   QWidget for drawing area
+#   QWidget for drawing area  #
 ###############################
 
 
@@ -138,7 +131,7 @@ class ScribbleArea(QtGui.QWidget):
 
 
 #####################################
-#           Main Window
+#           Main window             #
 #####################################
 
 
@@ -171,25 +164,25 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setCentralWidget(centralArea)
         self.setWindowTitle("Japanese Character Classifier")
-        self.setWindowIcon(QtGui.QIcon('icon.jpg'))    
+        self.setWindowIcon(QtGui.QIcon('icon.jpg'))
+
+        self.classify = Classifier()
 
     def handleButtonClassify(self):
-    	#self.scribbleArea.image.load('test.jpg')
-    	#self.scribbleArea.update()
-        """img = self.scribbleArea.image
-        buffer = QtCore.QBuffer()
-        buffer.open(QtCore.QIODevice.ReadWrite)
-        img.save(buffer, "JPG")
+        #self.scribbleArea.image.load('test_images/ka.png')
+        self.scribbleArea.update()
+        img = self.scribbleArea.image
+        img = img.scaled(64, 64, QtCore.Qt.KeepAspectRatio)
+        img = img.convertToFormat(QtGui.QImage.Format_RGB888)
+        ptr = img.bits()
+        ptr.setsize(img.byteCount())
+        arr = np.array(ptr).reshape(64, 64, 3) / 255.
+        arr = arr.dot([0.2, 0.7, 0.1]).reshape(1, 1, 64, 64)
+        arr = arr*(-1.) + 1.
+        tol = 1.2e-16
+        arr[arr<tol] = 0.
+        self.classify.classify(arr) # Classify image
 
-        strio = cStringIO.StringIO()
-        strio.write(buffer.data())
-        buffer.close()
-        strio.seek(0)
-        pil_img = Image.open(strio)
-
-        classifier(pil_img)"""
-        pass
-        
     def handleButtonClear(self):
         self.scribbleArea.clearImage()
 
