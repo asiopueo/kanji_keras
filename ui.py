@@ -2,7 +2,8 @@
 
 import numpy as np
 from PIL import Image
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QLabel
 
 from create_dictionary import KutenDictionary
 from classifier import Classifier
@@ -13,7 +14,7 @@ from classifier import Classifier
 ###############################
 
 
-class ScribbleArea(QtGui.QWidget):
+class ScribbleArea(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(ScribbleArea, self).__init__(parent)
 
@@ -135,7 +136,7 @@ class ScribbleArea(QtGui.QWidget):
 #####################################
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -146,20 +147,24 @@ class MainWindow(QtGui.QMainWindow):
         self.createActions()
         self.createMenus()
         
-        buttonClassify = QtGui.QPushButton('Classify Character')
+        buttonClassify = QtWidgets.QPushButton('Classify Character')
         buttonClassify.clicked.connect(self.handleButtonClassify)
-        buttonClear = QtGui.QPushButton('Clear Image')
+        buttonClear = QtWidgets.QPushButton('Clear Image')
         buttonClear.clicked.connect(self.handleButtonClear)
 
-        hbox = QtGui.QHBoxLayout()
+        hbox = QtWidgets.QHBoxLayout()
         hbox.addWidget(buttonClassify)
         hbox.addWidget(buttonClear)
 
-        vbox = QtGui.QVBoxLayout()
+        # Textbox for the result
+        self.textBox = QLabel(self)
+
+        vbox = QtWidgets.QVBoxLayout()
         vbox.addWidget(self.scribbleArea)
         vbox.addLayout(hbox)
+        vbox.addWidget(self.textBox)
 
-        centralArea = QtGui.QWidget()
+        centralArea = QtWidgets.QWidget()
         centralArea.setLayout(vbox)
 
         self.setCentralWidget(centralArea)
@@ -181,7 +186,11 @@ class MainWindow(QtGui.QMainWindow):
         arr = arr*(-1.) + 1.
         tol = 1.2e-16
         arr[arr<tol] = 0.
-        self.classify.classify(arr) # Classify image
+        result = self.classify.classify(arr) # Classify image
+        self.textBox.setText("{}".format(result))
+        font = QtGui.QFont('SansSerif', 16)
+        self.textBox.setFont(font)
+
 
     def handleButtonClear(self):
         self.scribbleArea.clearImage()
@@ -218,42 +227,42 @@ class MainWindow(QtGui.QMainWindow):
                 "<p>The <b>Japanese Character Classifier</b> demonstrates...</p>")
 
     def createActions(self):
-        self.openAct = QtGui.QAction("&Open...", self, shortcut="Ctrl+O", triggered=self.open)
+        self.openAct = QtWidgets.QAction("&Open...", self, shortcut="Ctrl+O", triggered=self.open)
 
         for format in QtGui.QImageWriter.supportedImageFormats():
             text = "Blablubb!"    
             #text = format.toUpper() + "..."      Okay, wir muessen noch herausfinden, wo hier der Haken liegt!
-            action = QtGui.QAction(text, self, triggered=self.save)
+            action = QtWidgets.QAction(text, self, triggered=self.save)
             action.setData(format)
             self.saveAsActs.append(action)
 
-        self.printAct = QtGui.QAction("&Print...", self, triggered=self.scribbleArea.print_)
-        self.exitAct = QtGui.QAction("E&xit", self, shortcut="Ctrl+Q", triggered=self.close)
-        self.penColorAct = QtGui.QAction("&Pen Color...", self, triggered=self.penColor)
-        self.penWidthAct = QtGui.QAction("Pen &Width...", self, triggered=self.penWidth)
-        self.clearScreenAct = QtGui.QAction("&Clear Screen", self, shortcut="Ctrl+L", triggered=self.scribbleArea.clearImage)
-        self.aboutAct = QtGui.QAction("&About", self, triggered=self.about)
-        self.aboutQtAct = QtGui.QAction("About &Qt", self, triggered=QtGui.qApp.aboutQt)
+        self.printAct = QtWidgets.QAction("&Print...", self, triggered=self.scribbleArea.print_)
+        self.exitAct = QtWidgets.QAction("E&xit", self, shortcut="Ctrl+Q", triggered=self.close)
+        self.penColorAct = QtWidgets.QAction("&Pen Color...", self, triggered=self.penColor)
+        self.penWidthAct = QtWidgets.QAction("Pen &Width...", self, triggered=self.penWidth)
+        self.clearScreenAct = QtWidgets.QAction("&Clear Screen", self, shortcut="Ctrl+L", triggered=self.scribbleArea.clearImage)
+        self.aboutAct = QtWidgets.QAction("&About", self, triggered=self.about)
+        self.aboutQtAct = QtWidgets.QAction("About &Qt", self, triggered=QtWidgets.qApp.aboutQt)
 
     def createMenus(self):
-        self.saveAsMenu = QtGui.QMenu("&Save As", self)
+        self.saveAsMenu = QtWidgets.QMenu("&Save As", self)
         for action in self.saveAsActs:
         	self.saveAsMenu.addAction(action)
 
-        fileMenu = QtGui.QMenu("&File", self)
+        fileMenu = QtWidgets.QMenu("&File", self)
         fileMenu.addAction(self.openAct)
         fileMenu.addMenu(self.saveAsMenu)
         fileMenu.addAction(self.printAct)
         fileMenu.addSeparator()
         fileMenu.addAction(self.exitAct)
 
-        optionMenu = QtGui.QMenu("&Options", self)
+        optionMenu = QtWidgets.QMenu("&Options", self)
         optionMenu.addAction(self.penColorAct)
         optionMenu.addAction(self.penWidthAct)
         optionMenu.addSeparator()
         optionMenu.addAction(self.clearScreenAct)
 
-        helpMenu = QtGui.QMenu("&Help", self)
+        helpMenu = QtWidgets.QMenu("&Help", self)
         helpMenu.addAction(self.aboutAct)
         helpMenu.addAction(self.aboutQtAct)
 
@@ -263,11 +272,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def maybeSave(self):
         if self.scribbleArea.isModified():
-            ret = QtGui.QMessageBox.warning(self, "Scribble", "The image has been modified.\n Do you want to save your changes?",
-                        QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel )
-            if ret == QtGui.QMessageBox.Save:
+            ret = QtWidgets.QMessageBox.warning(self, "Scribble", "The image has been modified.\n Do you want to save your changes?",
+                        QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel )
+            if ret == QtWidgets.QMessageBox.Save:
                 return self.saveFile('png')
-            elif ret == QtGui.QMessageBox.Cancel:
+            elif ret == QtWidgets.QMessageBox.Cancel:
                 return False
 
         return True
@@ -275,7 +284,7 @@ class MainWindow(QtGui.QMainWindow):
     def saveFile(self, fileFormat):
         initialPath = QtCore.QDir.currentPath() + '/untitled.' + fileFormat
 
-        fileName = QtGui.QFileDialog.getSaveFileName(self, "Save As", initialPath, "%s Files (*.%s);;All Files (*)" % (fileFormat.upper(), fileFormat))
+        fileName = QtWidgets.QFileDialog.getSaveFileName(self, "Save As", initialPath, "%s Files (*.%s);;All Files (*)" % (fileFormat.upper(), fileFormat))
         if fileName:
             return self.scribbleArea.saveImage(fileName, fileFormat)
 
@@ -285,7 +294,7 @@ class MainWindow(QtGui.QMainWindow):
 if __name__ == '__main__':
     import sys
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())

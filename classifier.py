@@ -8,18 +8,19 @@ from create_dictionary import KutenDictionary
 
 class Classifier():
 	def __init__(self):
-		self.model = model_M6_2()
-		self.model.load_weights('models/model_M6_2.hdf5')
+		self.model = model_M6_1()
+		self.model.load_weights('models/model_M6_1.hdf5')
 		with open('data/dictionary.pkl', 'rb') as f:
 			self.lookup = pickle.load(f)
 
 	# Method accepts ndarrays of shape (1,1,64,64)
 	def classify(self, img_array):
-		print(img_array)
+		print("Debug:", img_array)
 		print(img_array.shape)
 		print(np.max(img_array))
 		result = self.model.predict_classes(img_array, batch_size=1)
 		print(self.lookup[result.item(0)])
+		return self.lookup[result.item(0)]
 
 
 
