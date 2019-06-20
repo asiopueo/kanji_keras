@@ -8,7 +8,7 @@ from time import time
 import h5py
 
 
-	
+
 def show_on_console(tmp_str):
 	output = ['']*SIZE_Y
 
@@ -17,7 +17,7 @@ def show_on_console(tmp_str):
 			output[row] = output[row] + tmp_str[row*SIZE_X+column]
 
 	for row in range(SIZE_Y):
-		print output[row]
+		print(output[row])
 
 
 def show_kuten(counter):
@@ -27,7 +27,7 @@ def show_kuten(counter):
 
 	JIS_code_ku = int(JIS_code[0:2], 16)-32
 	JIS_code_ten = int(JIS_code[2:4], 16)-32
-	
+
 	return (JIS_code_ku, JIS_code_ten)
 
 
@@ -35,7 +35,7 @@ def show_kuten(counter):
 def reader(counter):
 	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
 	data = data[8:].encode('hex')
-	
+
 	tmp=[]
 	for i in data:
 		tmp.append(format(int(i,16),'04b'))
@@ -56,9 +56,9 @@ def string_to_array(tmp_str):
 
 def progress_bar(counter):
 	if counter in range(0, TOTAL_RECORDS, 1000):
-		print counter
+		print(counter)
 	if (counter+1) == TOTAL_RECORDS:
-		print counter
+		print(counter)
 
 
 
@@ -70,7 +70,7 @@ SAMPLE_WIDTH = 512
 TOTAL_RECORDS = 51200
 # 51200/160 = 320 different Kanji in dataset
 # TOTAL_RECORDS = 50560
-DATA_FILE = "data/ETL8B/ETL8B2C1"
+DATA_FILE = "etlcdb/ETL8B/ETL8B2C1"
 
 
 
@@ -88,13 +88,8 @@ kanji_as_array = string_to_array(kanji_as_str)
 
 # Output of a single Kanji:
 show_on_console(kanji_as_str)
-print "Kuten-index: (%i, %i)" % show_kuten(index)
+print("Kuten-index: (%i, %i)" % show_kuten(index))
 
 im = Image.fromarray(kanji_as_array, mode='L')
 im.show()
 im.save('example_output.jpg')
-
-
-
-
-
