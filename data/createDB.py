@@ -7,11 +7,13 @@ CREATE_TABLE = 	'''CREATE TABLE JISX0208 (
 					SHIFTJIS CHAR(6) NOT NULL,
 					JISX0208 CHAR(6) NOT NULL,
 					UNICODE CHAR(6) NOT NULL,
+					KU INT,
+					TEN INT,
 					NAME CHAR(50)
 				);
 				'''
 
-INSERT_SQL =	'''INSERT INTO JISX0208(SHIFTJIS, JISX0208, UNICODE, NAME) VALUES (?,?,?,?);
+INSERT_SQL =	'''INSERT INTO JISX0208(SHIFTJIS, JISX0208, UNICODE, KU, TEN, NAME) VALUES (?,?,?,?,?,?);
 				'''
 
 
@@ -46,9 +48,12 @@ def insert_values(ctx, source):
 				unicd = line_[2][2:]
 				name = line_[3][2:-1]
 
-				print (shiftjis, jisx0208, unicd, name)
+				ku = int(jisx0208[0:2], 16) - 32
+				ten = int(jisx0208[2:4], 16) - 32
+
+				print (shiftjis, jisx0208, unicd, ku, ten, name)
 				try:
-					crs.execute(INSERT_SQL, (shiftjis, jisx0208, unicd, name))
+					crs.execute(INSERT_SQL, (shiftjis, jisx0208, unicd, ku, ten, name))
 				except Error as e:
 					print(e)
 
@@ -58,10 +63,10 @@ def insert_values(ctx, source):
 
 
 def main():
-	db_file = './bla.db'
+	db_file = './jisx0208.db'
 	jis_file = './jis0208.txt'
 	ctx = create_connection(db_file)
-	#create_table(ctx)
+	create_table(ctx)
 	insert_values(ctx, jis_file)
 
 
