@@ -16,7 +16,7 @@ TOTAL_RECORDS = 51200
 # 51200/160 = 320 different Kanji in dataset
 # TOTAL_RECORDS = 50560
 DATA_FILE = "etlcdb/ETL8B/ETL8B2C1"
-
+DB_FILE = "data/jisx0208.db"
 
 
 def show_on_console(tmp_str):
@@ -30,13 +30,19 @@ def show_on_console(tmp_str):
 		print(output[row])
 
 
+def getJIS(counter):
+	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
+	JIS_code = data[2:4].hex()
+	return int(JIS_code)
+
+
 def getKuten(counter):
 	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
 	JIS_code = data[2:4].hex()
 	reading = data[4:8]
 	JIS_code_ku = int(JIS_code[0:2], 16)-32
 	JIS_code_ten = int(JIS_code[2:4], 16)-32
-	return int(JIS_code), JIS_code_ku, JIS_code_ten
+	return JIS_code_ku, JIS_code_ten
 
 
 
@@ -89,8 +95,20 @@ kanji_as_array = string_to_array(kanji_as_str)
 
 # Output of a single Kanji:
 show_on_console(kanji_as_str)
-print('JIS-code: {0}, Kuten-index: ({1}, {2})'.format(*getKuten(index)))
 
-im = Image.fromarray(kanji_as_array, mode='L')
-im.show()
+jis_code = getJIS(index)
+#print('JIS-code: {0}, Kuten-index: ({1}, {2})'.format(*getKuten(index)))
+
+from data.database import create_connection, getUnicode
+
+context = create_connection('./data/jisx0208.db')
+
+unicode_index = str(getUnicode(context, jis_code))
+
+character = chr(int(unicode_index, 16))
+print(character)
+
+
+#im = Image.fromarray(kanji_as_array, mode='L')
+#im.show()
 #im.save('example_output.jpg')
