@@ -80,35 +80,32 @@ def progress_bar(counter):
 
 
 
+if __name__=='__main__':
+	with open(DATA_FILE, 'rb') as file_handle:
+		byte_buffer = file_handle.read( (TOTAL_RECORDS+1)*SAMPLE_WIDTH )
+
+	index = int(sys.argv[1])
+	kanji_as_str = reader(index)
+	kanji_as_array = string_to_array(kanji_as_str)
+
+	# Output of a single Kanji:
+	show_on_console(kanji_as_str)
+
+	jis_code = getJIS(index)
+	#print('JIS-code: {0}, Kuten-index: ({1}, {2})'.format(*getKuten(index)))
+
+	from data.database import create_connection, getUnicode
+
+	context = create_connection('./data/jisx0208.db')
+
+	unicode_index = str(getUnicode(context, jis_code))
+
+	character = chr(int(unicode_index, 16))
+	print(character)
+
+	array = string_to_array(kanji_as_str)
 
 
-with open(DATA_FILE, 'rb') as file_handle:
-	byte_buffer = file_handle.read( (TOTAL_RECORDS+1)*SAMPLE_WIDTH )
-
-
-
-index = int(sys.argv[1])
-kanji_as_str = reader(index)
-kanji_as_array = string_to_array(kanji_as_str)
-
-
-
-# Output of a single Kanji:
-show_on_console(kanji_as_str)
-
-jis_code = getJIS(index)
-#print('JIS-code: {0}, Kuten-index: ({1}, {2})'.format(*getKuten(index)))
-
-from data.database import create_connection, getUnicode
-
-context = create_connection('./data/jisx0208.db')
-
-unicode_index = str(getUnicode(context, jis_code))
-
-character = chr(int(unicode_index, 16))
-print(character)
-
-
-#im = Image.fromarray(kanji_as_array, mode='L')
-#im.show()
-#im.save('example_output.jpg')
+	#im = Image.fromarray(kanji_as_array, mode='L')
+	#im.show()
+	#im.save('example_output.jpg')
