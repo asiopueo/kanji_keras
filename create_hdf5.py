@@ -9,67 +9,6 @@ import h5py
 
 
 
-class KutenDictionary(dict):
-	def __setitem__(self, key, value):
-		if key in self:
-			del self[key]
-		if value in self:
-			del self[value]
-		dict.__setitem__(self, key, value)
-		dict.__setitem__(self, value, key)
-
-	def __delitem__(self, key):
-		dict.__delitem__(self, self[key])
-		dict.__delitem__(self, key)
-
-	def __len__(self):
-		return dict.__len__(self) / 2
-
-
-
-
-
-def reader4string(counter):
-	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
-	data = data[8:].encode('hex')
-	
-	tmp=[]
-	for i in data:
-		tmp.append(format(int(i,16),'04b'))
-
-	tmp_str = ''.join(tmp)
-	return tmp_str
-
-
-def reader(counter):
-	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
-	JIS_code = data[2:4].encode('hex')
-	reading = data[4:8]
-
-	JIS_code_ku = int(JIS_code[0:2], 16)-32
-	JIS_code_ten = int(JIS_code[2:4], 16)-32
-	
-	return (JIS_code_ku, JIS_code_ten)
-
-
-def string_to_array(tmp_str):
-	#array = np.eye(SIZE_Y, SIZE_X).astype('uint8')
-	array = np.zeros(shape=(SIZE_Y+1, SIZE_X), dtype='uint8')
-
-	for i in range(1, SIZE_Y):
-		for j in range(SIZE_X):
-			array[i][j] = int(tmp_str[i*SIZE_X+j])
-
-	return array
-
-
-def progress_bar(counter):
-	if counter in range(0, TOTAL_RECORDS, 1000):
-		print counter
-	if (counter+1) == TOTAL_RECORDS:
-		print counter
-
-
 
 
 SIZE_X = 64
@@ -100,7 +39,7 @@ for counter in range(0,TOTAL_RECORDS,160):
 
 
 t0 = time()
-print "Creating hdf5-file..."
+print("Creating hdf5-file...")
 
 # Using int() in order to avoid 'numpy deprecation warnings'
 features_training = np.ndarray(shape=(int(TOTAL_RECORDS*0.9), SIZE_Y+1, SIZE_X))
