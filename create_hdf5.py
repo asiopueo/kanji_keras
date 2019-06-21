@@ -21,7 +21,7 @@ TOTAL_RECORDS = 51200 # C1&C2, 320 records
 
 
 DATA_FILE = "etlcdb/ETL8B/ETL8B2C2"
-OUTPUT_FILE = "hdf5data/testETL8B2C2_normalized.hdf5"
+OUTPUT_FILE = "hdf5data/ETL8B2C2.hdf5"
 
 
 
@@ -58,9 +58,11 @@ for counter in range(TOTAL_RECORDS):
 	if (counter%10 == 0):
 		features_test[counter_test] = ext.getArray(counter+1)
 		labels_test[counter_test] = int(ext.getJIS(counter+1),16) # Saves JIS code as integer instead of hex
+		counter_test += 1
 	else:
 		features_training[counter_training] = ext.getArray(counter+1)
 		labels_training[counter_training] = int(ext.getJIS(counter+1),16) # Saves JIS code as integer instead of hex
+		counter_training += 1
 
 	progress_bar(counter)
 
