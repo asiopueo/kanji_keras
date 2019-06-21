@@ -19,6 +19,42 @@ DATA_FILE = "etlcdb/ETL8B/ETL8B2C1"
 DB_FILE = "data/jisx0208.db"
 
 
+class Extractor():
+
+	def __init__(self):
+		with open(DATA_FILE, 'rb') as file_handle:
+			self.byte_buffer = file_handle.read( (TOTAL_RECORDS+1)*SAMPLE_WIDTH )
+
+	def reader(self, counter):
+		data = self.byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
+		data = data[8:].hex()
+
+		tmp=[]
+		for i in data:
+			tmp.append(format(int(i,16),'04b'))
+
+		tmp_str = ''.join(tmp)
+		return tmp_str
+
+	def getJIS(self, counter):
+		data = self.byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
+		JIS_code = data[2:4].hex()
+		return int(JIS_code)
+
+	def getKuten(self, counter):
+		data = self.byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
+		JIS_code = data[2:4].hex()
+		reading = data[4:8]
+		JIS_code_ku = int(JIS_code[0:2], 16)-32
+		JIS_code_ten = int(JIS_code[2:4], 16)-32
+		return JIS_code_ku, JIS_code_ten
+
+
+
+
+
+
+
 def show_on_console(tmp_str):
 	output = ['']*SIZE_Y
 
@@ -28,34 +64,6 @@ def show_on_console(tmp_str):
 
 	for row in range(SIZE_Y):
 		print(output[row])
-
-
-def getJIS(counter):
-	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
-	JIS_code = data[2:4].hex()
-	return int(JIS_code)
-
-
-def getKuten(counter):
-	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
-	JIS_code = data[2:4].hex()
-	reading = data[4:8]
-	JIS_code_ku = int(JIS_code[0:2], 16)-32
-	JIS_code_ten = int(JIS_code[2:4], 16)-32
-	return JIS_code_ku, JIS_code_ten
-
-
-
-def reader(counter):
-	data = byte_buffer[SAMPLE_WIDTH * counter : SAMPLE_WIDTH * (counter+1) ]
-	data = data[8:].hex()
-
-	tmp=[]
-	for i in data:
-		tmp.append(format(int(i,16),'04b'))
-
-	tmp_str = ''.join(tmp)
-	return tmp_str
 
 
 def string_to_array(tmp_str):
@@ -81,17 +89,17 @@ def progress_bar(counter):
 
 
 if __name__=='__main__':
-	with open(DATA_FILE, 'rb') as file_handle:
-		byte_buffer = file_handle.read( (TOTAL_RECORDS+1)*SAMPLE_WIDTH )
-
 	index = int(sys.argv[1])
-	kanji_as_str = reader(index)
+
+	ext = Extractor()
+
+	kanji_as_str = ext.reader(index)
 	kanji_as_array = string_to_array(kanji_as_str)
 
 	# Output of a single Kanji:
 	show_on_console(kanji_as_str)
 
-	jis_code = getJIS(index)
+	jis_code = ext.getJIS(index)
 	#print('JIS-code: {0}, Kuten-index: ({1}, {2})'.format(*getKuten(index)))
 
 	from data.database import create_connection, getUnicode
