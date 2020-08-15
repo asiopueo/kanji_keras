@@ -1,7 +1,12 @@
 *.pyc
 __pychache__
+.vscode/
 
 data/
+database/
+hdf5data/
+ignore/
+logs/
 models/
 hdf5_data/
 test_images/

@@ -5,7 +5,7 @@ from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QLabel
 
-from create_dictionary import KutenDictionary
+from tools.create_dictionary import KutenDictionary
 from classifier import Classifier
 
 
