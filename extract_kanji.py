@@ -7,6 +7,8 @@ from time import time
 
 import h5py
 
+from database.database import Database
+
 
 SIZE_X = 64
 SIZE_Y = 63
@@ -16,15 +18,14 @@ TOTAL_RECORDS = 51200
 # 51200/160 = 320 different Kanji in dataset
 # TOTAL_RECORDS = 50560
 DATA_FILE = "etlcdb/ETL8B/ETL8B2C1"
-DB_FILE = "data/jisx0208.db"
+DB_FILE = "database/jisx0208.db"
 
 
 class Extractor():
 
-	def __init__(self):
-		with open(DATA_FILE, 'rb') as file_handle:
+	def __init__(self, file):
+		with open(file, 'rb') as file_handle:
 			self.byte_buffer = file_handle.read( (TOTAL_RECORDS+1)*SAMPLE_WIDTH )
-
 
 
 	def reader(self, counter, padding=True):
@@ -86,27 +87,26 @@ class Extractor():
 if __name__=='__main__':
 	index = int(sys.argv[1])
 
-	ext = Extractor()
+	ext = Extractor(DATA_FILE)
 
 	kanji_as_str = ext.reader(index)
 	kanji_as_array = ext.getArray(index)
 
 	# Output of a single Kanji:
-	ext.show_on_console(kanji_as_str)
+	#ext.show_on_console(kanji_as_str)
 
-	jis_code = ext.getJIS(index)
-	#print('JIS-code: {0}, Kuten-index: ({1}, {2})'.format(*getKuten(index)))
+	jis_code = ext.getJIS(index) # Returns the JIS-code as a string: print(type(jis_code))
+	print('JIS-code: {}'.format(jis_code))
+	print('Kuten-index: {}'.format(ext.getKuten(index)))
+	
 
-	from data.database import create_connection, getUnicode
+	db = Database(DB_FILE)
+	#unicode_index = str(db.getUnicode(jis_code))
+	character = db.getCharacter(jis_code)
 
-	context = create_connection('./data/jisx0208.db')
-
-	unicode_index = str(getUnicode(context, jis_code))
-
-	character = chr(int(unicode_index, 16))
-	print(character)
+	print('Character: ' + character)
 
 
-	#im = Image.fromarray(kanji_as_array, mode='L')
-	#im.show()
-	#im.save('example_output.jpg')
+	im = Image.fromarray(kanji_as_array, mode='L')
+	im.show()
+	im.save('example_output.png')

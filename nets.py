@@ -94,7 +94,7 @@ def model_M6_2():
 	model.add( Dense(4096, kernel_initializer='random_uniform') )
 	model.add( Dropout(0.5) )
 	model.add( BatchNormalization() )
-	model.add( Dense(320, kernel_initializer='random_uniform') )
+	model.add( Dense(956, kernel_initializer='random_uniform') )
 	model.add( BatchNormalization() )
 	model.add( Activation('softmax') )
 	

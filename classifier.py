@@ -2,18 +2,20 @@ import numpy as np
 from PIL import Image, ImageOps
 import h5py
 from nets import *
-import ETL8B2C1
-import data.database
+from database import ETL8B, database
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+MODEL_FILE = 'models/model_M6_2_total.hdf5'
+DB_FILE = 'database/ETL8B.db'
+
 class Classifier():
 	def __init__(self):
 		self.model = model_M6_2()
-		self.model.load_weights('models/model_M6_2.hdf5')
-		self.etldb = ETL8B2C1.Database('data/ETL8B2C1.db')
-		self.jisdb = data.database.Database('data/jisx0208.db')
+		self.model.load_weights(MODEL_FILE)
+		self.etldb = ETL8B.Database(DB_FILE)
+		self.jisdb = database.Database('database/jisx0208.db')
 
 	# Method accepts ndarrays of shape (1,1,64,64)
 	def classify(self, img_array):
@@ -21,7 +23,7 @@ class Classifier():
 		result = self.model.predict_classes(img_array, batch_size=1)
 		print(result)
 
-		jis_code = self.etldb.getJIS(result.item(0)+1) # Check the table again!
+		jis_code = self.etldb.getJIS(result.item(0)) # Check the table again!
 		print("JIS-code: ", jis_code)
 		print("Character: ", self.jisdb.getCharacter(jis_code))
 
@@ -30,7 +32,7 @@ class Classifier():
 
 if __name__=='__main__':
 	test_image = "test_images/ka.png"
-	#test_image = "test_images/hi.png"
+	test_image = "test_images/hi.png"
 	#test_image = "test_images/ki.png"
 	#test_image = "test_images/u.png"
 	#test_image = "example_output.png"
